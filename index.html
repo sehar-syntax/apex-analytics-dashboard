@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Analytics | Global Executive Ledger</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #273449;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-2: #06b6d4;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: #1e293b;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      height: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 2px;
+      padding: 4px 10px 28px;
+      color: #fff;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.25), rgba(6, 182, 212, 0.1));
+      color: #fff;
+      border-left: 3px solid var(--accent);
+    }
+
+    .nav-icon { width: 20px; text-align: center; font-size: 15px; }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 16px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f472b6, var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .profile-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .profile-role { font-size: 11px; color: var(--text-muted); }
+
+    /* ---------- Main workspace ---------- */
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .workspace::-webkit-scrollbar { width: 10px; }
+    .workspace::-webkit-scrollbar-track { background: var(--bg); }
+    .workspace::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 16px 32px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-title { font-size: 22px; font-weight: 700; color: #fff; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .clock {
+      font-variant-numeric: tabular-nums;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent-2);
+      white-space: nowrap;
+    }
+
+    .btn-reset {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-reset:hover { background: var(--danger); color: #fff; }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 28px 32px 40px;
+    }
+
+    /* ---------- Stats grid ---------- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .stat-card { position: relative; overflow: hidden; }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25), transparent 70%);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      margin-top: 8px;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      word-break: break-word;
+    }
+
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .up { color: var(--success); }
+    .down { color: var(--danger); }
+
+    /* ---------- Workspace row ---------- */
+    .workspace-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .card-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .form-error {
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--danger);
+      margin-bottom: 10px;
+    }
+
+    .btn-gradient {
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px 18px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .btn-gradient:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-gradient:active { transform: translateY(0); }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 300px;
+    }
+
+    .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+    .chart-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      pointer-events: none;
+      padding: 20px;
+    }
+
+    .chart-empty.hidden { display: none; }
+
+    /* ---------- Table ---------- */
+    .table-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .table-wrap { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; min-width: 560px; }
+
+    thead th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 14px 16px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(99, 102, 241, 0.07); }
+
+    .cell-id { font-family: "SF Mono", Consolas, monospace; font-size: 12px; color: var(--accent-2); }
+    .cell-time { font-size: 12px; color: var(--text-muted); }
+    .cell-amount { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .text-right { text-align: right; }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-delete:hover { background: var(--danger); color: #fff; }
+
+    .empty-row td { text-align: center; color: var(--text-muted); padding: 36px 16px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      html, body { overflow: auto; }
+      .app-shell { flex-direction: column; height: auto; min-height: 100vh; width: 100%; overflow: visible; }
+      .sidebar { width: 100%; min-width: 0; height: auto; flex-direction: column; padding: 16px; }
+      .logo { padding-bottom: 14px; }
+      .nav { flex-direction: row; flex-wrap: wrap; flex: none; }
+      .nav-link { flex: 1 1 auto; justify-content: center; }
+      .workspace { height: auto; overflow: visible; }
+      .workspace-row { grid-template-columns: minmax(0, 1fr); }
+      .topbar { padding: 14px 18px; }
+      .content { padding: 20px 18px 32px; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: minmax(0, 1fr); }
+      .page-title { font-size: 18px; }
+      .stat-value { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-mark">&#9650;</div>
+        <span>APEX ANALYTICS</span>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#" class="nav-link active" aria-current="page">
+          <span class="nav-icon">&#9638;</span><span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">&#9830;</span><span>Assets</span>
+        </a>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">&#9881;</span><span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="profile">
+        <div class="avatar">S</div>
+        <div>
+          <div class="profile-name">Sehar's Account</div>
+          <div class="profile-role">(Enterprise Client)</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace" id="workspace">
+
+      <header class="topbar">
+        <h1 class="page-title">Global Executive Ledger</h1>
+        <div class="topbar-right">
+          <div class="clock" id="liveClock" aria-live="off">--:--:--</div>
+          <button type="button" class="btn-reset" id="resetBtn">Reset Data</button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <section class="stats-grid" aria-label="Key statistics">
+          <article class="card stat-card">
+            <div class="stat-label">Total Portfolio Value</div>
+            <div class="stat-value" id="statTotal">$0.00</div>
+            <div class="stat-sub">Sum of all allocations</div>
+          </article>
+
+          <article class="card stat-card">
+            <div class="stat-label">Total Assets Locked</div>
+            <div class="stat-value" id="statCount">0</div>
+            <div class="stat-sub">Active ledger entries</div>
+          </article>
+
+          <article class="card stat-card">
+            <div class="stat-label">Live BTC Feed</div>
+            <div class="stat-value" id="statBtc">Loading...</div>
+            <div class="stat-sub" id="statBtcSub">Connecting to market feed</div>
+          </article>
+        </section>
+
+        <section class="workspace-row" aria-label="Allocation workspace">
+          <article class="card">
+            <h2 class="card-title">New Asset Allocation</h2>
+            <p class="card-desc">Register a new position in the executive ledger.</p>
+
+            <form id="assetForm" novalidate>
+              <div class="form-group">
+                <label for="assetName">Asset Name</label>
+                <input type="text" id="assetName" name="assetName" placeholder="e.g. Bitcoin, Ethereum, S&amp;P 500 ETF" maxlength="60" autocomplete="off">
+              </div>
+
+              <div class="form-group">
+                <label for="assetAmount">Investment Capital (USD)</label>
+                <input type="number" id="assetAmount" name="assetAmount" placeholder="e.g. 25000" min="0.01" step="0.01" inputmode="decimal">
+              </div>
+
+              <div class="form-error" id="formError" role="alert"></div>
+
+              <button type="submit" class="btn-gradient">Allocate Capital</button>
+            </form>
+          </article>
+
+          <article class="card">
+            <h2 class="card-title">Resource Distribution</h2>
+            <p class="card-desc">Capital allocation share by asset.</p>
+            <div class="chart-wrap">
+              <canvas id="distributionChart" aria-label="Asset distribution chart" role="img"></canvas>
+              <div class="chart-empty" id="chartEmpty">No allocations yet. Add an asset to see the distribution.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="card" aria-label="Audit ledger watchlist">
+          <div class="table-head">
+            <div>
+              <h2 class="card-title">Audit Ledger Watchlist</h2>
+              <p class="card-desc" style="margin-bottom:0;">Complete record of all registered allocations.</p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID &amp; Timestamp</th>
+                  <th>Asset Matrix</th>
+                  <th>Allocation Budget (USD)</th>
+                  <th class="text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
